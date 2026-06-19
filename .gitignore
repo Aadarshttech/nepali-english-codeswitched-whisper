@@ -1,0 +1,33 @@
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Output and large data files
+*.mp4
+*.wav
+*.mp3
+*.flac
+training output/
+scratch/
+unmanaged_files/
+whisper_dataset/
+important_files/
+extracted_frames/
+nepali_subtitles (1)/
+kaggle_cycle2/
+*.pt
+*.pth
+*.bin
+
+# Jupyter Notebook
+.ipynb_checkpoints
