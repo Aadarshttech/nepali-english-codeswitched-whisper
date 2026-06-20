@@ -211,35 +211,31 @@ def print_random_samples(references, hypotheses, num_samples=15):
         print(f"  HYP: {hypotheses[idx]}")
 
 # =============================================================================
-# 7. MAIN EXPERIMENT RUNNER
+# 7. EXPERIMENT EXECUTION (Global Scope)
 # =============================================================================
-def main():
-    test_df = load_test_data()
-    audio_paths = test_df["audio_path"].tolist()
-    references = test_df["transcription"].tolist()
-    
-    results = {}
-    
-    # 1. BASELINE (Zero-shot Whisper Constrained)
-    preds_baseline = run_inference(config.BASELINE_MODEL, audio_paths, constrain_language=True)
-    results["A: Zero-Shot Baseline"] = compute_cs_wer(references, preds_baseline)
-    
-    # 2. YOUR TRAINED MODEL (Unconstrained - The proposed method!)
-    preds_unconstrained = run_inference(config.TRAINED_MODEL, audio_paths, constrain_language=False)
-    results["B: Trained (Unconstrained)"] = compute_cs_wer(references, preds_unconstrained)
-    
-    print("\n" + "="*80)
-    print(f"{'Model Setup':<35} | {'Overall WER':<12} | {'CS-WER':<10} | {'Nep-WER':<10}")
-    print("-" * 80)
-    for name, metrics in results.items():
-        print(f"{name:<35} | {metrics['overall_wer']:<12.1f} | {metrics['cs_wer']:<10.1f} | {metrics['nep_wer']:<10.1f}")
-    print("="*80)
-    
-    # Run Error Analysis on our best model
-    perform_error_analysis(references, preds_unconstrained)
-    
-    # Print random transcriptions to manually review performance
-    print_random_samples(references, preds_unconstrained, num_samples=15)
+test_df = load_test_data()
+audio_paths = test_df["audio_path"].tolist()
+references = test_df["transcription"].tolist()
 
-if __name__ == "__main__":
-    main()
+results = {}
+
+# 1. BASELINE (Zero-shot Whisper Constrained)
+preds_baseline = run_inference(config.BASELINE_MODEL, audio_paths, constrain_language=True)
+results["A: Zero-Shot Baseline"] = compute_cs_wer(references, preds_baseline)
+
+# 2. YOUR TRAINED MODEL (Unconstrained - The proposed method!)
+preds_unconstrained = run_inference(config.TRAINED_MODEL, audio_paths, constrain_language=False)
+results["B: Trained (Unconstrained)"] = compute_cs_wer(references, preds_unconstrained)
+
+print("\n" + "="*80)
+print(f"{'Model Setup':<35} | {'Overall WER':<12} | {'CS-WER':<10} | {'Nep-WER':<10}")
+print("-" * 80)
+for name, metrics in results.items():
+    print(f"{name:<35} | {metrics['overall_wer']:<12.1f} | {metrics['cs_wer']:<10.1f} | {metrics['nep_wer']:<10.1f}")
+print("="*80)
+
+# Run Error Analysis on our best model
+perform_error_analysis(references, preds_unconstrained)
+
+# Print random transcriptions to manually review performance
+print_random_samples(references, preds_unconstrained, num_samples=15)
