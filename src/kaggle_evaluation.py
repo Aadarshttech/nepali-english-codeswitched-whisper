@@ -1,3 +1,6 @@
+# Run this cell first to install required dependencies:
+# !pip install -q transformers datasets accelerate evaluate jiwer tensorboard soundfile librosa
+
 import os
 import gc
 import re
@@ -10,8 +13,12 @@ from transformers import (
     WhisperFeatureExtractor,
     WhisperTokenizer,
     WhisperForConditionalGeneration,
+    logging as hf_logging
 )
 from jiwer import process_words
+
+# Suppress annoying generation warnings
+hf_logging.set_verbosity_error()
 
 print(f"PyTorch: {torch.__version__}")
 print(f"CUDA: {torch.cuda.is_available()}")
@@ -122,8 +129,10 @@ def run_inference(model_path, audio_paths, constrain_language=True):
     model.eval()
 
     model.generation_config.task = "transcribe"
-    model.generation_config.max_new_tokens = 225
-    model.generation_config.no_repeat_ngram_size = 3
+    # To fix max_length vs max_new_tokens warning:
+    model.generation_config.max_length = 225
+    model.generation_config.max_new_tokens = None
+    model.generation_config.no_repeat_ngram_size = 5
     
     if constrain_language:
         model.generation_config.language = "ne"
@@ -141,9 +150,10 @@ def run_inference(model_path, audio_paths, constrain_language=True):
     print("Running inference...")
     for i, path in enumerate(audio_paths):
         audio, sr = librosa.load(path, sr=config.SAMPLING_RATE)
-        inputs = feature_extractor(audio, sampling_rate=sr, return_tensors="pt").to(model.device)
+        # return_attention_mask=True silences the attention_mask warning
+        inputs = feature_extractor(audio, sampling_rate=sr, return_tensors="pt", return_attention_mask=True).to(model.device)
         with torch.no_grad():
-            ids = model.generate(inputs.input_features)
+            ids = model.generate(inputs.input_features, attention_mask=inputs.attention_mask)
         
         pred_text = tokenizer.decode(ids[0], skip_special_tokens=True)
         predictions.append(pred_text)
@@ -198,13 +208,9 @@ def main():
     preds_baseline = run_inference(config.BASELINE_MODEL, audio_paths, constrain_language=True)
     results["A: Zero-Shot Baseline"] = compute_cs_wer(references, preds_baseline)
     
-    # 2. YOUR TRAINED MODEL (Constrained)
-    preds_constrained = run_inference(config.TRAINED_MODEL, audio_paths, constrain_language=True)
-    results["B: Trained (Constrained)"] = compute_cs_wer(references, preds_constrained)
-    
-    # 3. YOUR TRAINED MODEL (Unconstrained - The proposed method!)
+    # 2. YOUR TRAINED MODEL (Unconstrained - The proposed method!)
     preds_unconstrained = run_inference(config.TRAINED_MODEL, audio_paths, constrain_language=False)
-    results["C: Trained (Unconstrained)"] = compute_cs_wer(references, preds_unconstrained)
+    results["B: Trained (Unconstrained)"] = compute_cs_wer(references, preds_unconstrained)
     
     print("\n" + "="*80)
     print(f"{'Model Setup':<35} | {'Overall WER':<12} | {'CS-WER':<10} | {'Nep-WER':<10}")

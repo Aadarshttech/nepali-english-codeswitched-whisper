@@ -9,3 +9,4 @@ librosa
 torch
 pandas
 numpy
+google-genai
