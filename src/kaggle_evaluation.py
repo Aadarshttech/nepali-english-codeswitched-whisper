@@ -195,7 +195,23 @@ def perform_error_analysis(references, hypotheses, n_examples=5):
             print(f"  HYP: {ex['hyp']}")
 
 # =============================================================================
-# 6. MAIN EXPERIMENT RUNNER
+# 6. RANDOM SAMPLES
+# =============================================================================
+import random
+
+def print_random_samples(references, hypotheses, num_samples=15):
+    print("\n" + "="*80)
+    print(f"RANDOM SAMPLES ({num_samples} examples)")
+    print("="*80)
+    
+    indices = random.sample(range(len(references)), min(num_samples, len(references)))
+    for i, idx in enumerate(indices):
+        print(f"\n--- Sample {i+1} ---")
+        print(f"  REF: {references[idx]}")
+        print(f"  HYP: {hypotheses[idx]}")
+
+# =============================================================================
+# 7. MAIN EXPERIMENT RUNNER
 # =============================================================================
 def main():
     test_df = load_test_data()
@@ -221,6 +237,9 @@ def main():
     
     # Run Error Analysis on our best model
     perform_error_analysis(references, preds_unconstrained)
+    
+    # Print random transcriptions to manually review performance
+    print_random_samples(references, preds_unconstrained, num_samples=15)
 
 if __name__ == "__main__":
     main()
