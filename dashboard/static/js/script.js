@@ -7,23 +7,41 @@ document.addEventListener('DOMContentLoaded', () => {
     const removeFileBtn = document.getElementById('remove-file');
     
     const recordBtn = document.getElementById('record-btn');
-    const recordingIndicator = document.getElementById('recording-indicator');
     const timeDisplay = document.getElementById('time-display');
+    const recordUiDefault = document.getElementById('record-ui-default');
     
     const transcribeBtn = document.getElementById('transcribe-btn');
     const loading = document.getElementById('loading');
-    const resultCard = document.getElementById('result-card');
+    const resultSection = document.getElementById('result-section');
     const transcriptText = document.getElementById('transcript-text');
     const downloadBtn = document.getElementById('download-btn');
     
     const stars = document.querySelectorAll('.stars i');
     const ratingThanks = document.getElementById('rating-thanks');
 
+    // Canvas Visualizer
+    const canvas = document.getElementById('visualizer');
+    const canvasCtx = canvas.getContext('2d');
+    
     let currentFile = null;
     let mediaRecorder = null;
     let audioChunks = [];
     let recordInterval = null;
     let startTime = null;
+
+    // Audio Context & Analyser
+    let audioCtx;
+    let analyser;
+    let source;
+    let animationId;
+
+    // Adjust canvas resolution
+    function resizeCanvas() {
+        canvas.width = canvas.offsetWidth;
+        canvas.height = canvas.offsetHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
 
     // File Upload Handling
     ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
@@ -67,7 +85,6 @@ document.addEventListener('DOMContentLoaded', () => {
             fileName.textContent = currentFile.name;
             transcribeBtn.disabled = false;
             
-            // Stop recording if active
             if (mediaRecorder && mediaRecorder.state === 'recording') {
                 stopRecording();
             }
@@ -96,6 +113,45 @@ document.addEventListener('DOMContentLoaded', () => {
     async function startRecording() {
         try {
             const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            
+            // Setup Visualizer
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            analyser = audioCtx.createAnalyser();
+            source = audioCtx.createMediaStreamSource(stream);
+            source.connect(analyser);
+            analyser.fftSize = 2048;
+            const bufferLength = analyser.frequencyBinCount;
+            const dataArray = new Uint8Array(bufferLength);
+            
+            function draw() {
+                resizeCanvas();
+                animationId = requestAnimationFrame(draw);
+                analyser.getByteTimeDomainData(dataArray);
+
+                canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
+                canvasCtx.lineWidth = 2;
+                canvasCtx.strokeStyle = '#d4ff00'; // Neon accent
+                canvasCtx.beginPath();
+
+                const sliceWidth = canvas.width * 1.0 / bufferLength;
+                let x = 0;
+
+                for (let i = 0; i < bufferLength; i++) {
+                    const v = dataArray[i] / 128.0;
+                    const y = v * canvas.height / 2;
+
+                    if (i === 0) {
+                        canvasCtx.moveTo(x, y);
+                    } else {
+                        canvasCtx.lineTo(x, y);
+                    }
+                    x += sliceWidth;
+                }
+                canvasCtx.lineTo(canvas.width, canvas.height / 2);
+                canvasCtx.stroke();
+            }
+            draw();
+
             mediaRecorder = new MediaRecorder(stream);
             audioChunks = [];
 
@@ -108,22 +164,25 @@ document.addEventListener('DOMContentLoaded', () => {
                 currentFile = new File([audioBlob], `recording_${new Date().getTime()}.wav`, { type: 'audio/wav' });
                 updateFileUI();
                 
-                // Stop all tracks to release mic
                 stream.getTracks().forEach(track => track.stop());
+                if (audioCtx.state !== 'closed') {
+                    audioCtx.close();
+                }
+                cancelAnimationFrame(animationId);
+                canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
             });
 
             mediaRecorder.start();
             
             // UI Updates
-            recordBtn.innerHTML = '<i class="fa-solid fa-stop"></i> Stop Recording';
             recordBtn.classList.add('recording');
-            recordingIndicator.classList.remove('hidden');
+            recordUiDefault.classList.add('hidden');
+            timeDisplay.classList.add('active');
             
             // Timer
             startTime = Date.now();
             recordInterval = setInterval(updateTimer, 1000);
             
-            // Clear current file if any
             if (currentFile) {
                 currentFile = null;
                 updateFileUI();
@@ -132,7 +191,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         } catch (err) {
             console.error("Error accessing mic:", err);
-            alert("Could not access microphone. Please ensure permissions are granted.");
+            alert("Could not access microphone.");
         }
     }
 
@@ -141,9 +200,9 @@ document.addEventListener('DOMContentLoaded', () => {
             mediaRecorder.stop();
             clearInterval(recordInterval);
             
-            recordBtn.innerHTML = '<i class="fa-solid fa-circle"></i> Start Recording';
             recordBtn.classList.remove('recording');
-            recordingIndicator.classList.add('hidden');
+            recordUiDefault.classList.remove('hidden');
+            timeDisplay.classList.remove('active');
             timeDisplay.textContent = '00:00';
         }
     }
@@ -159,10 +218,9 @@ document.addEventListener('DOMContentLoaded', () => {
     transcribeBtn.addEventListener('click', async () => {
         if (!currentFile) return;
 
-        // UI updates
         transcribeBtn.disabled = true;
         loading.classList.remove('hidden');
-        resultCard.classList.add('hidden');
+        resultSection.classList.add('hidden');
         resetRating();
 
         const formData = new FormData();
@@ -178,7 +236,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (response.ok) {
                 transcriptText.textContent = data.text;
-                resultCard.classList.remove('hidden');
+                resultSection.classList.remove('hidden');
             } else {
                 alert(`Error: ${data.error}`);
             }
@@ -198,7 +256,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `transcript_${new Date().getTime()}.txt`;
+        a.download = `cs_whisper_transcript_${new Date().getTime()}.txt`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
@@ -227,13 +285,10 @@ document.addEventListener('DOMContentLoaded', () => {
             this.classList.add('active');
             highlightStars(value);
             
-            // Send rating to backend
             try {
                 await fetch('/rate', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         rating: value,
                         transcript: transcriptText.textContent
@@ -249,7 +304,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function highlightStars(value) {
         stars.forEach(star => {
             if (star.getAttribute('data-value') <= value) {
-                star.style.color = '#fbbf24';
+                star.style.color = 'var(--accent)';
             } else {
                 star.style.color = '';
             }
