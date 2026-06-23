@@ -43,6 +43,22 @@ document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('resize', resizeCanvas);
     resizeCanvas();
 
+    // Model Browse Handling
+    const browseModelBtn = document.getElementById('browse-model-btn');
+    if (browseModelBtn) {
+        browseModelBtn.addEventListener('click', async () => {
+            try {
+                const response = await fetch('/select_model');
+                const data = await response.json();
+                if (data.path) {
+                    document.getElementById('model-path').value = data.path;
+                }
+            } catch (err) {
+                console.error("Failed to select folder", err);
+            }
+        });
+    }
+
     // File Upload Handling
     ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
         dropArea.addEventListener(eventName, preventDefaults, false);

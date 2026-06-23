@@ -27,6 +27,20 @@ transcriber_cache = {
 def index():
     return render_template('index.html')
 
+@app.route('/select_model', methods=['GET'])
+def select_model():
+    import tkinter as tk
+    from tkinter import filedialog
+    try:
+        root = tk.Tk()
+        root.withdraw()
+        root.attributes('-topmost', True)
+        folder_path = filedialog.askdirectory(title="Select Model Directory")
+        root.destroy()
+        return jsonify({"path": folder_path})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 @app.route('/transcribe', methods=['POST'])
 def transcribe():
     if 'audio' not in request.files:

@@ -27,6 +27,48 @@ body {
     justify-content: center;
     align-items: center;
     padding: 2rem;
+    position: relative;
+}
+
+.bg-orbs {
+    position: fixed;
+    top: 0; left: 0; width: 100vw; height: 100vh;
+    overflow: hidden;
+    z-index: -1;
+    pointer-events: none;
+}
+
+.orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.15;
+    animation: float 20s infinite ease-in-out alternate;
+}
+
+.orb-1 {
+    width: 400px; height: 400px;
+    background: var(--accent);
+    top: -100px; left: -100px;
+}
+
+.orb-2 {
+    width: 500px; height: 500px;
+    background: #00ffcc;
+    bottom: -150px; right: -100px;
+    animation-delay: -5s;
+}
+
+.orb-3 {
+    width: 300px; height: 300px;
+    background: #ff0055;
+    top: 40%; left: 40%;
+    animation-delay: -10s;
+}
+
+@keyframes float {
+    0% { transform: translate(0, 0) scale(1); }
+    100% { transform: translate(100px, 100px) scale(1.2); }
 }
 
 .app-wrapper {
@@ -124,6 +166,13 @@ body {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 1.5rem;
+}
+
+.input-column {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    height: 100%;
 }
 
 .panel {
@@ -257,10 +306,11 @@ canvas#visualizer {
     display: flex;
     align-items: center;
     gap: 1rem;
-    padding: 1rem;
+    padding: 1.5rem;
     border: 1px solid var(--accent);
     background: rgba(212, 255, 0, 0.05);
     color: var(--accent);
+    flex-grow: 1;
 }
 
 .mono-text {
@@ -277,8 +327,8 @@ canvas#visualizer {
 }
 
 .process-btn {
-    background: var(--text);
-    color: var(--bg);
+    background: linear-gradient(90deg, var(--accent), #00ffcc);
+    color: #000;
     border: none;
     padding: 1.5rem;
     font-family: var(--font);
@@ -291,11 +341,29 @@ canvas#visualizer {
     justify-content: space-between;
     align-items: center;
     transition: all 0.3s ease;
+    box-shadow: 0 0 20px rgba(212, 255, 0, 0.3);
+    border-radius: 8px;
+    position: relative;
+    overflow: hidden;
+}
+
+.process-btn::after {
+    content: '';
+    position: absolute;
+    top: 0; left: -100%; width: 50%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+    animation: shine 3s infinite;
+}
+
+@keyframes shine {
+    0% { left: -100%; }
+    20% { left: 200%; }
+    100% { left: 200%; }
 }
 
 .process-btn:hover:not(:disabled) {
-    background: var(--accent);
-    color: var(--bg);
+    box-shadow: 0 0 30px rgba(0, 255, 204, 0.6);
+    transform: translateY(-2px);
 }
 
 .process-btn:disabled {

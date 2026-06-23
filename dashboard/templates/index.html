@@ -11,6 +11,11 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
+    <div class="bg-orbs">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+    </div>
     <div class="app-wrapper">
         <header class="app-header">
             <div class="brand">
@@ -26,18 +31,27 @@
             <div class="model-config">
                 <i class="fa-solid fa-microchip"></i>
                 <input type="text" id="model-path" value="Aadarshttech/nepali-english-codeswitched-whisper" placeholder="Model Path or HuggingFace ID" class="model-input">
+                <button id="browse-model-btn" class="icon-btn" title="Select Local Model Folder"><i class="fa-solid fa-folder-open"></i></button>
             </div>
 
             <section class="input-section">
                 
-                <div class="panel upload-panel" id="drop-area">
-                    <div class="panel-content">
-                        <i class="fa-solid fa-arrow-up-from-bracket"></i>
-                        <h3>Drop Audio File</h3>
-                        <p class="meta-text">WAV, MP3, M4A up to 50MB</p>
+                <div class="input-column">
+                    <div class="panel upload-panel" id="drop-area">
+                        <div class="panel-content">
+                            <i class="fa-solid fa-arrow-up-from-bracket"></i>
+                            <h3>Drop Audio File</h3>
+                            <p class="meta-text">WAV, MP3, M4A up to 50MB</p>
+                        </div>
+                        <input type="file" id="fileElem" accept="audio/*" class="hidden">
+                        <button class="ghost-btn" onclick="document.getElementById('fileElem').click()">Browse Files</button>
                     </div>
-                    <input type="file" id="fileElem" accept="audio/*" class="hidden">
-                    <button class="ghost-btn" onclick="document.getElementById('fileElem').click()">Browse Files</button>
+
+                    <div id="file-info" class="panel file-status hidden">
+                        <i class="fa-solid fa-file-audio"></i>
+                        <span id="file-name" class="mono-text">filename.wav</span>
+                        <button id="remove-file" class="icon-btn"><i class="fa-solid fa-xmark"></i></button>
+                    </div>
                 </div>
 
                 <div class="panel record-panel">
@@ -58,12 +72,6 @@
                 </div>
 
             </section>
-
-            <div id="file-info" class="file-status hidden">
-                <i class="fa-solid fa-file-audio"></i>
-                <span id="file-name" class="mono-text">filename.wav</span>
-                <button id="remove-file" class="icon-btn"><i class="fa-solid fa-xmark"></i></button>
-            </div>
 
             <button id="transcribe-btn" class="process-btn" disabled>
                 INITIATE TRANSCRIPTION <i class="fa-solid fa-arrow-right"></i>
