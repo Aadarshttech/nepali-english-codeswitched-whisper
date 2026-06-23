@@ -92,6 +92,34 @@ body {
     gap: 2rem;
 }
 
+.model-config {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 1rem 1.5rem;
+}
+
+.model-config i {
+    color: var(--accent);
+}
+
+.model-input {
+    background: transparent;
+    border: none;
+    color: var(--text);
+    font-family: monospace;
+    font-size: 1rem;
+    width: 100%;
+    outline: none;
+    transition: color 0.3s ease;
+}
+
+.model-input:focus {
+    color: var(--accent);
+}
+
 .input-section {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -271,8 +299,11 @@ canvas#visualizer {
 }
 
 .process-btn:disabled {
-    opacity: 0.3;
+    opacity: 0.7;
+    background: var(--surface);
+    color: var(--text-muted);
     cursor: not-allowed;
+    border: 1px dashed var(--border);
 }
 
 .loading-state {

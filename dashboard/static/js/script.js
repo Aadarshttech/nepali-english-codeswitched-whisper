@@ -218,13 +218,17 @@ document.addEventListener('DOMContentLoaded', () => {
     transcribeBtn.addEventListener('click', async () => {
         if (!currentFile) return;
 
+        const originalBtnText = transcribeBtn.innerHTML;
         transcribeBtn.disabled = true;
+        transcribeBtn.innerHTML = 'PROCESSING... <i class="fa-solid fa-spinner fa-spin"></i>';
+        
         loading.classList.remove('hidden');
         resultSection.classList.add('hidden');
         resetRating();
 
         const formData = new FormData();
         formData.append('audio', currentFile);
+        formData.append('model_path', document.getElementById('model-path').value);
 
         try {
             const response = await fetch('/transcribe', {
@@ -246,6 +250,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } finally {
             loading.classList.add('hidden');
             transcribeBtn.disabled = false;
+            transcribeBtn.innerHTML = originalBtnText;
         }
     });
 

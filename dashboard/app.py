@@ -3,17 +3,9 @@ import csv
 from flask import Flask, request, jsonify, render_template
 import uuid
 import warnings
-warnings.filterwarnings("ignore")
+import torch
 
-try:
-    from transformers import pipeline
-    MODEL_NAME = "Aadarshttech/nepali-english-codeswitched-whisper"
-    print(f"Loading model {MODEL_NAME}...")
-    transcriber = pipeline("automatic-speech-recognition", model=MODEL_NAME)
-    print("Model loaded successfully.")
-except Exception as e:
-    print(f"Failed to load model: {e}")
-    transcriber = None
+warnings.filterwarnings("ignore")
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'uploads'
@@ -25,6 +17,11 @@ if not os.path.exists(FEEDBACK_FILE):
     with open(FEEDBACK_FILE, mode='w', newline='', encoding='utf-8') as f:
         writer = csv.writer(f)
         writer.writerow(['id', 'transcript', 'rating', 'timestamp'])
+
+transcriber_cache = {
+    "model_path": None,
+    "pipeline": None
+}
 
 @app.route('/')
 def index():
@@ -39,24 +36,39 @@ def transcribe():
     if file.filename == '':
         return jsonify({'error': 'No selected file'}), 400
         
+    model_path = request.form.get('model_path', 'Aadarshttech/nepali-english-codeswitched-whisper')
+        
     filepath = os.path.join(app.config['UPLOAD_FOLDER'], f"{uuid.uuid4()}_{file.filename}")
     file.save(filepath)
     
-    if transcriber is None:
-        # Mock transcriber response for testing if model failed to load
-        text = "This is a mocked transcription. The model failed to load or is taking too long."
-        if os.path.exists(filepath):
-            os.remove(filepath)
-        return jsonify({'text': text})
+    if transcriber_cache["model_path"] != model_path or transcriber_cache["pipeline"] is None:
+        try:
+            from transformers import pipeline
+            device = "cuda:0" if torch.cuda.is_available() else "cpu"
+            print(f"Loading model {model_path} on {device}...")
+            transcriber_cache["pipeline"] = pipeline(
+                "automatic-speech-recognition", 
+                model=model_path,
+                device=device,
+                generate_kwargs={"no_repeat_ngram_size": 5}
+            )
+            transcriber_cache["model_path"] = model_path
+            print("Model loaded successfully.")
+        except Exception as e:
+            print(f"Failed to load model: {e}")
+            if os.path.exists(filepath):
+                os.remove(filepath)
+            return jsonify({'error': f"Model failed to load. Error: {str(e)}"}), 500
         
     try:
-        result = transcriber(filepath)
+        result = transcriber_cache["pipeline"](filepath)
         text = result.get('text', '')
-        # Clean up file after transcription
         if os.path.exists(filepath):
             os.remove(filepath)
         return jsonify({'text': text})
     except Exception as e:
+        if os.path.exists(filepath):
+            os.remove(filepath)
         return jsonify({'error': str(e)}), 500
 
 @app.route('/rate', methods=['POST'])
