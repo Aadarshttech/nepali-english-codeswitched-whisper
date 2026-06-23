@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CS-Whisper Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="background-mesh"></div>
+    <div class="container">
+        <header>
+            <div class="logo-container">
+                <i class="fa-solid fa-microphone-lines pulse-icon"></i>
+                <h1>CS-Whisper</h1>
+            </div>
+            <p class="subtitle">Nepali-English Code-Switched Transcription</p>
+        </header>
+
+        <main>
+            <div class="card upload-card">
+                <h2><i class="fa-solid fa-cloud-arrow-up"></i> Upload Audio</h2>
+                <div class="upload-area" id="drop-area">
+                    <i class="fa-solid fa-file-audio fa-3x"></i>
+                    <p>Drag & Drop your audio file here</p>
+                    <p class="text-sm text-gray">Supports .wav, .mp3, .m4a</p>
+                    <input type="file" id="fileElem" accept="audio/*" class="hidden">
+                    <button class="btn btn-primary" onclick="document.getElementById('fileElem').click()">Browse Files</button>
+                </div>
+                <div id="file-info" class="hidden file-info">
+                    <span id="file-name">filename.wav</span>
+                    <button id="remove-file" class="btn-icon"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+            </div>
+
+            <div class="card record-card">
+                <h2><i class="fa-solid fa-microphone"></i> Or Record</h2>
+                <div class="record-area">
+                    <button id="record-btn" class="btn btn-record">
+                        <i class="fa-solid fa-circle"></i> Start Recording
+                    </button>
+                    <div id="recording-indicator" class="hidden">
+                        <span class="pulse"></span> Recording... <span id="time-display">00:00</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="action-area">
+                <button id="transcribe-btn" class="btn btn-action" disabled>
+                    <i class="fa-solid fa-wand-magic-sparkles"></i> Transcribe Audio
+                </button>
+            </div>
+
+            <div id="loading" class="hidden loading-container">
+                <div class="spinner"></div>
+                <p>Analyzing and Transcribing...</p>
+            </div>
+
+            <div id="result-card" class="card result-card hidden">
+                <div class="result-header">
+                    <h2><i class="fa-solid fa-file-lines"></i> Transcription</h2>
+                    <button id="download-btn" class="btn btn-secondary">
+                        <i class="fa-solid fa-download"></i> Download
+                    </button>
+                </div>
+                <div class="transcript-box">
+                    <p id="transcript-text"></p>
+                </div>
+                
+                <div class="rating-section">
+                    <p>How accurate was this transcription?</p>
+                    <div class="stars" id="star-rating">
+                        <i class="fa-solid fa-star" data-value="1"></i>
+                        <i class="fa-solid fa-star" data-value="2"></i>
+                        <i class="fa-solid fa-star" data-value="3"></i>
+                        <i class="fa-solid fa-star" data-value="4"></i>
+                        <i class="fa-solid fa-star" data-value="5"></i>
+                    </div>
+                    <p id="rating-thanks" class="hidden success-text">Thanks for your feedback!</p>
+                </div>
+            </div>
+        </main>
+        
+        <footer>
+            <p>Powered by <a href="https://huggingface.co/Aadarshttech/nepali-english-codeswitched-whisper" target="_blank">Aadarshttech Code-Switched Whisper</a></p>
+        </footer>
+    </div>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
