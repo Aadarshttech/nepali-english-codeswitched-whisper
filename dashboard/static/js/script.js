@@ -289,9 +289,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function updateTimer() {
-        const diff = new Date(Date.now() - startTime);
-        const mins = diff.getMinutes().toString().padStart(2, '0');
-        const secs = diff.getSeconds().toString().padStart(2, '0');
+        const diffMs = Date.now() - startTime;
+        const totalSeconds = Math.floor(diffMs / 1000);
+        const mins = Math.floor(totalSeconds / 60).toString().padStart(2, '0');
+        const secs = (totalSeconds % 60).toString().padStart(2, '0');
         timeDisplay.textContent = `${mins}:${secs}`;
     }
 
