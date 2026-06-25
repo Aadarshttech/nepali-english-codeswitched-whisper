@@ -1,9 +1,15 @@
 import os
 import csv
+import sys
 from flask import Flask, request, jsonify, render_template
 import uuid
 import warnings
 import torch
+
+# Ensure that the directory containing the python executable (which now contains ffmpeg.exe) is in the PATH
+scripts_dir = os.path.dirname(sys.executable)
+if scripts_dir not in os.environ.get("PATH", ""):
+    os.environ["PATH"] = scripts_dir + os.pathsep + os.environ.get("PATH", "")
 
 warnings.filterwarnings("ignore")
 
