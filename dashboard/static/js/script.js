@@ -1,6 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     // Elements
     const dropArea = document.getElementById('drop-area');
+    const uploadContent = document.getElementById('upload-content');
     const fileElem = document.getElementById('fileElem');
     const fileInfo = document.getElementById('file-info');
     const fileName = document.getElementById('file-name');
@@ -96,7 +97,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function updateFileUI() {
         if (currentFile) {
-            dropArea.classList.add('hidden');
+            uploadContent.classList.add('hidden');
             fileInfo.classList.remove('hidden');
             fileName.textContent = currentFile.name;
             transcribeBtn.disabled = false;
@@ -105,7 +106,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 stopRecording();
             }
         } else {
-            dropArea.classList.remove('hidden');
+            uploadContent.classList.remove('hidden');
             fileInfo.classList.add('hidden');
             transcribeBtn.disabled = true;
         }

@@ -60,10 +60,14 @@ def transcribe():
             from transformers import pipeline
             device = "cuda:0" if torch.cuda.is_available() else "cpu"
             print(f"Loading model {model_path} on {device}...")
+            torch_dtype = torch.float16 if torch.cuda.is_available() else torch.float32
             transcriber_cache["pipeline"] = pipeline(
                 "automatic-speech-recognition", 
                 model=model_path,
                 device=device,
+                torch_dtype=torch_dtype,
+                chunk_length_s=30,
+                batch_size=8,
                 generate_kwargs={"no_repeat_ngram_size": 5}
             )
             transcriber_cache["model_path"] = model_path

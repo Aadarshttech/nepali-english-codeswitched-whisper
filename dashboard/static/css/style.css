@@ -305,17 +305,39 @@ canvas#visualizer {
 .file-status {
     display: flex;
     align-items: center;
-    gap: 1rem;
-    padding: 1.5rem;
+    justify-content: center;
+    gap: 1.5rem;
+    padding: 2rem;
+    height: 100%;
     border: 1px solid var(--accent);
     background: rgba(212, 255, 0, 0.05);
     color: var(--accent);
     flex-grow: 1;
 }
 
+.file-icon {
+    font-size: 2.5rem !important;
+}
+
+.file-details {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    flex-grow: 1;
+}
+
 .mono-text {
     font-family: monospace;
-    flex-grow: 1;
+    font-size: 1.1rem;
+    color: var(--text);
+    word-break: break-all;
+}
+
+.file-ready {
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    opacity: 0.8;
 }
 
 .icon-btn {
@@ -376,19 +398,87 @@ canvas#visualizer {
 
 .loading-state {
     display: flex;
-    align-items: center;
-    gap: 1rem;
-    color: var(--accent);
-    font-weight: 500;
-    letter-spacing: 1px;
+    justify-content: center;
+    padding: 2rem 0;
 }
 
-.cyber-loader {
-    width: 30px;
-    height: 30px;
+.processing-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+    width: 100%;
+    max-width: 400px;
+}
+
+.ai-pulse {
+    position: relative;
+    width: 80px;
+    height: 80px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.ai-pulse i {
+    font-size: 2.5rem;
+    color: var(--accent);
+    z-index: 2;
+    animation: float 3s ease-in-out infinite;
+}
+
+.pulse-ring {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
     border: 2px solid var(--accent);
-    border-top-color: transparent;
-    animation: rotate 1s linear infinite;
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(0.8); opacity: 1; }
+    100% { transform: scale(1.5); opacity: 0; }
+}
+
+.loading-text {
+    text-align: center;
+}
+
+.loading-text h4 {
+    color: var(--accent);
+    letter-spacing: 2px;
+    margin-bottom: 0.5rem;
+}
+
+.loading-text p {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 6px;
+    background: var(--surface-hover);
+    border-radius: 3px;
+    overflow: hidden;
+    position: relative;
+}
+
+.progress-fill {
+    position: absolute;
+    top: 0; left: 0;
+    height: 100%;
+    width: 50%;
+    background: var(--accent);
+    border-radius: 3px;
+    animation: indeterminate 2s ease-in-out infinite alternate;
+    box-shadow: 0 0 10px var(--accent);
+}
+
+@keyframes indeterminate {
+    0% { left: -50%; width: 50%; }
+    100% { left: 100%; width: 50%; }
 }
 
 .result-panel {

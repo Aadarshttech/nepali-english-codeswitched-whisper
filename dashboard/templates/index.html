@@ -30,7 +30,7 @@
         <main class="workspace">
             <div class="model-config">
                 <i class="fa-solid fa-microchip"></i>
-                <input type="text" id="model-path" value="Aadarshttech/nepali-english-codeswitched-whisper" placeholder="Model Path or HuggingFace ID" class="model-input">
+                <input type="text" id="model-path" value="D:\Projects\Projects\Code switching\archive\latest csmodel" placeholder="Model Path or HuggingFace ID" class="model-input">
                 <button id="browse-model-btn" class="icon-btn" title="Select Local Model Folder"><i class="fa-solid fa-folder-open"></i></button>
             </div>
 
@@ -38,19 +38,22 @@
                 
                 <div class="input-column">
                     <div class="panel upload-panel" id="drop-area">
-                        <div class="panel-content">
+                        <div class="panel-content" id="upload-content">
                             <i class="fa-solid fa-arrow-up-from-bracket"></i>
                             <h3>Drop Audio File</h3>
                             <p class="meta-text">WAV, MP3, M4A up to 50MB</p>
+                            <input type="file" id="fileElem" accept="audio/*" class="hidden">
+                            <button class="ghost-btn" onclick="document.getElementById('fileElem').click()">Browse Files</button>
                         </div>
-                        <input type="file" id="fileElem" accept="audio/*" class="hidden">
-                        <button class="ghost-btn" onclick="document.getElementById('fileElem').click()">Browse Files</button>
-                    </div>
-
-                    <div id="file-info" class="panel file-status hidden">
-                        <i class="fa-solid fa-file-audio"></i>
-                        <span id="file-name" class="mono-text">filename.wav</span>
-                        <button id="remove-file" class="icon-btn"><i class="fa-solid fa-xmark"></i></button>
+                        
+                        <div id="file-info" class="file-status hidden">
+                            <i class="fa-solid fa-file-audio file-icon"></i>
+                            <div class="file-details">
+                                <span id="file-name" class="mono-text">filename.wav</span>
+                                <span class="file-ready">Ready for transcription</span>
+                            </div>
+                            <button id="remove-file" class="icon-btn"><i class="fa-solid fa-xmark"></i></button>
+                        </div>
                     </div>
                 </div>
 
@@ -78,8 +81,19 @@
             </button>
 
             <div id="loading" class="loading-state hidden">
-                <div class="cyber-loader"></div>
-                <span>PROCESSING AUDIO DATA...</span>
+                <div class="processing-container">
+                    <div class="ai-pulse">
+                        <div class="pulse-ring"></div>
+                        <i class="fa-solid fa-brain"></i>
+                    </div>
+                    <div class="loading-text">
+                        <h4>ANALYZING AUDIO STREAM...</h4>
+                        <p>Neural networks are processing the data</p>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill"></div>
+                    </div>
+                </div>
             </div>
 
             <section id="result-section" class="output-section hidden">
