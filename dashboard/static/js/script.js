@@ -7,6 +7,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const fileName = document.getElementById('file-name');
     const removeFileBtn = document.getElementById('remove-file');
     
+    // Custom Audio Player Elements
+    const playPauseBtn = document.getElementById('play-pause-btn');
+    const audioTimeline = document.getElementById('audio-timeline');
+    const audioProgress = document.getElementById('audio-progress');
+    const audioTime = document.getElementById('audio-time');
+    const hiddenAudio = document.getElementById('hidden-audio');
+    
     const recordBtn = document.getElementById('record-btn');
     const timeDisplay = document.getElementById('time-display');
     const recordUiDefault = document.getElementById('record-ui-default');
@@ -102,6 +109,13 @@ document.addEventListener('DOMContentLoaded', () => {
             fileName.textContent = currentFile.name;
             transcribeBtn.disabled = false;
             
+            // Audio setup
+            const url = URL.createObjectURL(currentFile);
+            hiddenAudio.src = url;
+            playPauseBtn.innerHTML = '<i class="fa-solid fa-play"></i>';
+            audioProgress.style.width = '0%';
+            audioTime.textContent = '00:00 / 00:00';
+            
             if (mediaRecorder && mediaRecorder.state === 'recording') {
                 stopRecording();
             }
@@ -115,8 +129,58 @@ document.addEventListener('DOMContentLoaded', () => {
     removeFileBtn.addEventListener('click', () => {
         currentFile = null;
         fileElem.value = '';
+        hiddenAudio.pause();
+        hiddenAudio.src = '';
         updateFileUI();
     });
+
+    // Audio Player Logic
+    playPauseBtn.addEventListener('click', () => {
+        if (!hiddenAudio.src) return;
+        if (hiddenAudio.paused) {
+            hiddenAudio.play();
+            playPauseBtn.innerHTML = '<i class="fa-solid fa-pause"></i>';
+        } else {
+            hiddenAudio.pause();
+            playPauseBtn.innerHTML = '<i class="fa-solid fa-play"></i>';
+        }
+    });
+
+    hiddenAudio.addEventListener('timeupdate', () => {
+        const current = hiddenAudio.currentTime;
+        const duration = hiddenAudio.duration;
+        if (duration) {
+            const progressPercent = (current / duration) * 100;
+            audioProgress.style.width = `${progressPercent}%`;
+            audioTime.textContent = `${formatTime(current)} / ${formatTime(duration)}`;
+        }
+    });
+
+    hiddenAudio.addEventListener('loadedmetadata', () => {
+        audioTime.textContent = `00:00 / ${formatTime(hiddenAudio.duration)}`;
+    });
+
+    hiddenAudio.addEventListener('ended', () => {
+        playPauseBtn.innerHTML = '<i class="fa-solid fa-play"></i>';
+        audioProgress.style.width = '0%';
+        audioTime.textContent = `00:00 / ${formatTime(hiddenAudio.duration)}`;
+    });
+
+    audioTimeline.addEventListener('click', (e) => {
+        if (!hiddenAudio.duration) return;
+        const rect = audioTimeline.getBoundingClientRect();
+        const clickX = e.clientX - rect.left;
+        const width = rect.width;
+        const clickPercent = clickX / width;
+        hiddenAudio.currentTime = clickPercent * hiddenAudio.duration;
+    });
+
+    function formatTime(seconds) {
+        if (isNaN(seconds) || !isFinite(seconds)) return "00:00";
+        const mins = Math.floor(seconds / 60).toString().padStart(2, '0');
+        const secs = Math.floor(seconds % 60).toString().padStart(2, '0');
+        return `${mins}:${secs}`;
+    }
 
     // Recording Handling
     recordBtn.addEventListener('click', async () => {

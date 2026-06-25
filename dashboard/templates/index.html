@@ -50,9 +50,16 @@
                             <i class="fa-solid fa-file-audio file-icon"></i>
                             <div class="file-details">
                                 <span id="file-name" class="mono-text">filename.wav</span>
-                                <span class="file-ready">Ready for transcription</span>
+                                <div class="custom-audio-player">
+                                    <button id="play-pause-btn" class="audio-ctrl-btn"><i class="fa-solid fa-play"></i></button>
+                                    <div class="audio-timeline" id="audio-timeline">
+                                        <div class="audio-progress" id="audio-progress"></div>
+                                    </div>
+                                    <span id="audio-time" class="audio-time">00:00 / 00:00</span>
+                                </div>
                             </div>
                             <button id="remove-file" class="icon-btn"><i class="fa-solid fa-xmark"></i></button>
+                            <audio id="hidden-audio" class="hidden"></audio>
                         </div>
                     </div>
                 </div>
