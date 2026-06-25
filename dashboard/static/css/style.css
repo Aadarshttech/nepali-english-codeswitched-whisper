@@ -424,7 +424,12 @@ canvas#visualizer {
     font-size: 2.5rem;
     color: var(--accent);
     z-index: 2;
-    animation: float 3s ease-in-out infinite;
+    animation: brainSpin 4s linear infinite;
+}
+
+@keyframes brainSpin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
 }
 
 .pulse-ring {
