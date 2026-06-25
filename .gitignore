@@ -31,3 +31,4 @@ kaggle_cycle2/
 
 # Jupyter Notebook
 .ipynb_checkpoints
+*.safetensors

@@ -50,7 +50,7 @@ def transcribe():
     if file.filename == '':
         return jsonify({'error': 'No selected file'}), 400
         
-    model_path = request.form.get('model_path', 'Aadarshttech/nepali-english-codeswitched-whisper')
+    model_path = request.form.get('model_path', r'D:\Projects\Projects\Code switching\archive\latest csmodel')
         
     filepath = os.path.join(app.config['UPLOAD_FOLDER'], f"{uuid.uuid4()}_{file.filename}")
     file.save(filepath)
