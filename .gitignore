@@ -7,16 +7,28 @@ ENV/
 env.bak/
 venv.bak/
 
-# Byte-compiled / optimized / DLL files
+# Python cache & build
 __pycache__/
 *.py[cod]
-*$py.class
+*.class
+*.so
 
 # Output and large data files
 *.mp4
 *.wav
 *.mp3
 *.flac
+*.pt
+*.pth
+*.bin
+*.safetensors
+*.zip
+*.csv
+*.txt
+
+# Exclude raw data directories & dump folders
+archive/
+codemix-main/
 training output/
 scratch/
 unmanaged_files/
@@ -25,10 +37,35 @@ important_files/
 extracted_frames/
 nepali_subtitles (1)/
 kaggle_cycle2/
-*.pt
-*.pth
-*.bin
-
-# Jupyter Notebook
 .ipynb_checkpoints
-*.safetensors
+
+# Paper / LaTeX files
+paper/
+*.tex
+*.sty
+*.bst
+*.aux
+*.bbl
+*.blg
+*.log
+*.out
+
+# Root level scratch/helper scripts
+annotate_test_set.py
+bootstrap_ci.py
+deep_scan.py
+gradio_annotator.py
+kaggle_*.py
+kaggle_*.ipynb
+append_*.py
+fix_*.py
+find_*.py
+check_*.py
+discover_*.py
+search_*.py
+process_*.py
+scratch_*.py
+sort_*.py
+
+# Notebooks directory cleanup
+notebooks/*.py
